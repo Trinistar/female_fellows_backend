@@ -51,8 +51,8 @@ export const onTandemMatchUpdate = functions.region('europe-west1').firestore.do
                 if (local.data.localOrNewcomer === Roles.local) {
                     await UpdateDocument(local.snap.ref, { newcomerMatches: FieldValue.arrayRemove(match.newcomer), matchConfirmed: false })
                 }
-                await sendFcmNotifications(match.newcomer === match.requester ? match.local : match.newcomer, "your are declined", "your are declined", {
-                    requester : match.newcomer === match.requester ? match.newcomer : match.local
+                await sendFcmNotifications(match.newcomer === match.requester ? match.newcomer : match.local, "your are declined", "your are declined", {
+                    matchId : match.newcomer === match.requester ? match.local : match.newcomer
                 })
             }
             async function confirmTandemMatch() {
@@ -68,8 +68,8 @@ export const onTandemMatchUpdate = functions.region('europe-west1').firestore.do
                 if (local.data.localOrNewcomer === Roles.local) {
                     await UpdateDocument(local.snap.ref, { matchConfirmed: true })
                 }
-                await sendFcmNotifications(match.newcomer === match.requester ? match.local : match.newcomer, "your are confirmed", "your are confirmed", {
-                    requester: match.newcomer === match.requester ? match.newcomer : match.local
+                await sendFcmNotifications(match.newcomer === match.requester ? match.newcomer : match.local, "your are confirmed", "your are confirmed", {
+                    matchId: match.newcomer === match.requester ? match.local : match.newcomer
                 })
             }
             if (didFieldChange(before.data(), after.data(), "enabled") && after.data().enabled === false) {
