@@ -83,8 +83,9 @@ export const onEventParticipantCreate = functions
                 throw new Error("no admins found")
             }
             const promises = users.snap.docs.map((user) => {
-                return sendFcmNotifications(user.id, "new participant", "new participant", {
-                    participant : participantId
+                return sendFcmNotifications(user.id, "New Event Participant", "A new participant has joined your event. Tab to go to the event.", {
+                    participant : participantId,
+                    event : context.params['eventID']
                 })
             })
             const results = await Promise.all(promises)

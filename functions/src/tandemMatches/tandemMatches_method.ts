@@ -25,7 +25,7 @@ export const onTandemMatchCreate = functions.region('europe-west1').firestore.do
             if (local.data.localOrNewcomer === Roles.local) {
                 await UpdateDocument(local.snap.ref, { newcomerMatches: FieldValue.arrayUnion(match.newcomer) })
             }
-            await sendFcmNotifications(match.newcomer === match.requester ? match.local : match.newcomer, "you are requested", "your are requested", {
+            await sendFcmNotifications(match.newcomer === match.requester ? match.local : match.newcomer, "You have a tandem request", "Someone requested to be your tandem partner.", {
                 requester: match.newcomer === match.requester ? match.newcomer : match.local
             })
         } catch (e: any) {
@@ -51,8 +51,8 @@ export const onTandemMatchUpdate = functions.region('europe-west1').firestore.do
                 if (local.data.localOrNewcomer === Roles.local) {
                     await UpdateDocument(local.snap.ref, { newcomerMatches: FieldValue.arrayRemove(match.newcomer), matchConfirmed: false })
                 }
-                await sendFcmNotifications(match.newcomer === match.requester ? match.newcomer : match.local, "your are declined", "your are declined", {
-                    matchId : match.newcomer === match.requester ? match.local : match.newcomer
+                await sendFcmNotifications(match.newcomer === match.requester ? match.local : match.newcomer, "Your tandem request was declined", "", {
+                    requester : match.newcomer === match.requester ? match.newcomer : match.local
                 })
             }
             async function confirmTandemMatch() {
@@ -68,7 +68,7 @@ export const onTandemMatchUpdate = functions.region('europe-west1').firestore.do
                 if (local.data.localOrNewcomer === Roles.local) {
                     await UpdateDocument(local.snap.ref, { matchConfirmed: true })
                 }
-                await sendFcmNotifications(match.newcomer === match.requester ? match.newcomer : match.local, "your are confirmed", "your are confirmed", {
+                await sendFcmNotifications(match.newcomer === match.requester ? match.newcomer : match.local, "You have a tandem match!", "Your tandem request was confirmed", {
                     matchId: match.newcomer === match.requester ? match.local : match.newcomer
                 })
             }
