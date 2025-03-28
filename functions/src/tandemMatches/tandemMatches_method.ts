@@ -72,14 +72,16 @@ export const onTandemMatchUpdate = functions.region('europe-west1').firestore.do
                     matchId: match.newcomer === match.requester ? match.local : match.newcomer
                 })
             }
-            if (didFieldChange(before.data(), after.data(), "enabled") && after.data().enabled === false) {
-                await disableTandemMatch()
-            }
-            if (didFieldChange(before.data(), after.data(), "state") && after.data().state === TandemMatchesState.declined) {
-                await disableTandemMatch()
-            }
-            if (didFieldChange(before.data(), after.data(), "state") && after.data().state === TandemMatchesState.confirmed) {
-                await confirmTandemMatch()
+            if(after.data().newcomer !== null && after.data().requester !== null){
+                if (didFieldChange(before.data(), after.data(), "enabled") && after.data().enabled === false) {
+                    await disableTandemMatch()
+                }
+                if (didFieldChange(before.data(), after.data(), "state") && after.data().state === TandemMatchesState.declined) {
+                    await disableTandemMatch()
+                }
+                if (didFieldChange(before.data(), after.data(), "state") && after.data().state === TandemMatchesState.confirmed) {
+                    await confirmTandemMatch()
+                }
             }
         } catch (e: any) {
             printError(e.message)
@@ -98,7 +100,7 @@ export const TandemMatchScheduler = functions.region('europe-west1').pubsub.sche
         matches.snap.forEach((doc) => {
             promises.push(async function () {
                 const match = doc.data() as TandemMatches
-                if (match.requested < createTimestamp({ hours: 24 }, "-")) {
+                if (match.state !== TandemMatchesState.confirmed && match.requested < createTimestamp({ hours: 24 }, "-")) {
                     await UpdateDocument(doc.ref, {
                         enabled: false
                     })

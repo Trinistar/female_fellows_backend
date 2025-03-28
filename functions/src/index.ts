@@ -18,7 +18,7 @@ initializeApp({
 export { pullGeodata } from "./geodata/geodata_methods"
 export { onEventCreate, onEventUpdate, onEventParticipantCreate } from "./event/event_methods"
 export { onDebugCustomClaimsCreate, onDebugCustomClaimsUpdate } from "./customClaims/customClaims_methods"
-export { onFirebaseUserCreated, onUserCreated, onUserUpdated } from "./user/user_methods"
+export { onFirebaseUserCreated, onUserCreated, onUserUpdated, onFirebaseUserDeleted, onUserDeleted } from "./user/user_methods"
 export { onTandemMatchCreate, TandemMatchScheduler, onTandemMatchUpdate } from './tandemMatches/tandemMatches_method'
 export { sendFcmToken, removeFcmToken } from "./fcm/fcm_methods"
 

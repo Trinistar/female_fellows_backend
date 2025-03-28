@@ -1,14 +1,18 @@
 import * as functions from "firebase-functions"
 import { setCustomClaims } from "../customClaims/customClaims_methods"
-import { printError } from "../logger"
+import {printError, printInfo} from "../logger"
 import { Roles } from "../customClaims/customClaims_interfaces"
 import { DocumentSnapshot } from "firebase-admin/firestore"
 import { GenericError } from "../utils/Error"
 import { fetchGeodata, getGeodatafromCache, toAddressString } from "../geodata/geodata_methods"
-import { UpsertDocument } from "../sdk/firestore_CRUD"
+import {UpsertDocument, GetDocument} from "../sdk/firestore_CRUD"
 import { didFieldChange } from "../utils/Field"
 import { runTasksAsync } from "../utils/Tasks"
 import { GeolocationApiKey } from "../API"
+import {DeleteUser, GetUser} from "../sdk/auth_CRUD";
+import {UserRecord} from "firebase-functions/v1/auth";
+import {modifyTandemMatchesOfDeletedUser} from "../tandemMatches/tandemMatches_util";
+import {deleteDocumentRecursive} from "../utils/database";
 
 /**
  * creates a subcollection below the given firestore document with geodata. For this, an "address" field must be present in the document
@@ -50,6 +54,41 @@ export const onFirebaseUserCreated = functions
             printError(e.message)
         }
     })
+
+/**
+ * a trigger that is executed when a firebase user are deleted. Delete the user document that belongs to the deleted user
+ * */
+export const onFirebaseUserDeleted = functions.region('europe-west1').auth.user().onDelete(async function (user) {
+    try{
+        const userDoc = await GetDocument<any>(`/user/${user.uid}`)
+        if(userDoc) {
+            await deleteDocumentRecursive(userDoc.snap.ref)
+        }else{
+            printInfo(`user document with id ${user.uid} not found.`)
+        }
+    }catch (e: any) {
+        printError(e.message)
+    }
+})
+
+/**
+ * a trigger that is executed when a user document is delete. Delete the firebase user that belongs to the deleted user
+ * */
+export const onUserDeleted = functions.region('europe-west1').firestore.document(`/user/{userId}`).onDelete(async function (user, context) {
+    try{
+        const userId = context.params["userId"]
+        if(!userId) {
+            throw new Error("userid malformed")
+        }
+        const user = await GetUser<UserRecord>(context.params["userId"])
+        if(user) {
+            await DeleteUser(userId)
+        }
+        await modifyTandemMatchesOfDeletedUser(userId)
+    }catch (e: any) {
+        printError(e.message)
+    }
+})
 
 /**
  * trigger that is executed when a new document in the collection "user" is created
