@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "736FCHTSD9.com.example.vsFemalefellows",
+        "paths": ["*"]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["736FCHTSD9.com.example.vsFemalefellows"]
+  }
+}

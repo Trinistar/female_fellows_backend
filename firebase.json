@@ -33,6 +33,14 @@
       {
         "source": "**",
         "destination": "/index.html"
+      },
+      {
+        "source": ".well-known/apple-app-site-association",
+        "destination": "/apple-app-site-association"
+      },
+      {
+        "source": ".well-known/assetlinks.json",
+        "destination": "/assetlinks.json"
       }
     ]
   }

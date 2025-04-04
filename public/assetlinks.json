@@ -1,0 +1,14 @@
+[
+    {
+        "relation": [
+            "delegate_permission/common.handle_all_urls"
+        ],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.femalefellows.app",
+            "sha256_cert_fingerprints": [
+                "B6:87:BE:FD:4B:9D:88:BE:EB:B6:A8:A8:12:47:2F:9D:8E:D0:2A:2E:F7:39:61:51:A1:E9:A2:8C:37:E2:36:33"
+            ]
+        }
+    }
+]
