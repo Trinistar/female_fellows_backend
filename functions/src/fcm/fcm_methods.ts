@@ -1,5 +1,5 @@
 import * as firebaseFunctions from "firebase-functions"
-import { GetDocument, UpsertDocument } from "../sdk/firestore_CRUD";
+import {CreateDocument, GetDocument, UpsertDocument} from "../sdk/firestore_CRUD";
 import { FcmToken, FcmTokenDocument } from "./fcm_interfaces";
 import { createTimestamp } from "../utils/Timestamp";
 import { FieldValue } from "firebase-admin/firestore";
@@ -35,7 +35,7 @@ export const sendFcmToken = firebaseFunctions
                 token: data.token,
                 timestamp: createTimestamp()
             }
-            const result = await UpsertDocument(`fcmToken/${uid}`, {
+            const result = await CreateDocument(`fcmToken/${uid}`, {
                 tokens: FieldValue.arrayUnion(payload)
             })
             if (result === null) {

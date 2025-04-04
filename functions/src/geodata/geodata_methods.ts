@@ -1,4 +1,4 @@
-import { GeoPoint } from "firebase-admin/firestore"
+import {DocumentReference, GeoPoint} from "firebase-admin/firestore"
 import { AddressGeometry, Client as MapsClient } from "@googlemaps/google-maps-services-js"
 import { geohashForLocation } from "geofire-common"
 import { createTimestamp } from "../utils/Timestamp"
@@ -7,7 +7,7 @@ import { GPSPosition, GeodataCache } from "./geodata_interfaces"
 import { checkForAuthenticatedUser } from "../utils/Auth"
 import { CustomError, GenericError, InvalidArgument, NoAuth } from "../utils/Error"
 import CustomResponse from "../utils/Response"
-import { GetDocument, UpsertDocument } from "../sdk/firestore_CRUD"
+import {CreateDocument, DeleteDocument, GetDocument} from "../sdk/firestore_CRUD"
 import { Address } from "../utils/Interfaces"
 import { printInfo } from "../logger"
 import { GeolocationApiKey } from "../API"
@@ -20,6 +20,16 @@ export function toAddressString(address : Address){
     return `${address.street}, ${
         address.zipCode
     } ${address.city}`
+}
+
+export async function deleteGeodataDocument(ref : DocumentReference){
+    const geodataDocRef = ref.collection('data').doc('geodata')
+    const geodataDoc = await GetDocument(geodataDocRef);
+    if(!geodataDoc){
+        printInfo("No geodata document found, nothing to delete")
+        return;
+    }
+    await DeleteDocument(geodataDocRef)
 }
 
 /**
@@ -62,7 +72,7 @@ export async function getGeodatafromCache(addressString : string){
  * @returns the unfulfilled Promise
  */
 function writeGeodataIntoCache(addressString : string, data : GeodataCache){
-    return UpsertDocument(`geodataCache/${addressString}`, data, true)
+    return CreateDocument(`geodataCache/${addressString}`, data)
 }
 
 /**

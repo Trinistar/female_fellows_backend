@@ -4,8 +4,8 @@ import {printError, printInfo} from "../logger"
 import { Roles } from "../customClaims/customClaims_interfaces"
 import { DocumentSnapshot } from "firebase-admin/firestore"
 import { GenericError } from "../utils/Error"
-import { fetchGeodata, getGeodatafromCache, toAddressString } from "../geodata/geodata_methods"
-import {UpsertDocument, GetDocument} from "../sdk/firestore_CRUD"
+import {deleteGeodataDocument, fetchGeodata, getGeodatafromCache, toAddressString} from "../geodata/geodata_methods"
+import {GetDocument, UpsertDocument} from "../sdk/firestore_CRUD"
 import { didFieldChange } from "../utils/Field"
 import { runTasksAsync } from "../utils/Tasks"
 import { GeolocationApiKey } from "../API"
@@ -126,15 +126,20 @@ export const onUserUpdated = functions
             const after = snapshot.after
             const before = snapshot.before
             if (didFieldChange(before.data(), after.data(), "address")) {
-                promises.push(async function () {
-                    const address = after.data().address
-                    if (!address) {
-                        return;
-                    }
-                    await generateUserGeodata(after)
-                })
+                if(after.data().address === null){
+                    promises.push(async function(){
+                        await deleteGeodataDocument(after.ref)
+                    })
+                }else{
+                    promises.push(async function () {
+                        const address = after.data().address
+                        if (!address) {
+                            return;
+                        }
+                        await generateUserGeodata(after)
+                    })
+                }
             }
-
             await runTasksAsync(promises)
         } catch (e: any) {
             printError(e.message)

@@ -8,6 +8,7 @@ import {
     getFirestore,
 } from 'firebase-admin/firestore';
 import * as functions from 'firebase-functions';
+import {createTimestamp} from "../utils/Timestamp";
 
 const logger = functions.logger;
 type DataID = string | DocumentReference;
@@ -183,4 +184,28 @@ async function UpsertDocument(id: DataID, data: { [id: string]: any }, merge: bo
     }
 }
 
-export { UpdateDocument, DeleteDocument, GetDocument, UpsertDocument, GetManyDocuments };
+/**
+ * create a firestore document
+ * @param id DocumentReference or path of the Firestore document to be updated
+ * @param data map that contains the new data for the document
+ * @returns a map that contains the create date and a function with which the updated document can be compared with another one,
+ * null in case of error
+ */
+async function CreateDocument(id: DataID, data: { [id: string]: any }) {
+    try {
+        const db = getFirestore();
+        let documentRefernce: DocumentReference;
+        if (id instanceof DocumentReference) {
+            documentRefernce = id;
+        } else {
+            documentRefernce = db.doc(id);
+        }
+        const createResult = await documentRefernce.create({createdAt : createTimestamp(), ...data});
+        return { timestamp: createResult.writeTime, compare: (w: WriteResult) => createResult.isEqual(w) };
+    } catch (e: any) {
+        logger.error(e.message);
+        return null;
+    }
+}
+
+export { UpdateDocument, DeleteDocument, GetDocument, UpsertDocument, GetManyDocuments, CreateDocument };

@@ -63,10 +63,10 @@ export const onTandemMatchUpdate = functions.region('europe-west1').firestore.do
                     throw new GenericError("user can not found")
                 }
                 if (newcomer.data.localOrNewcomer === Roles.newcomer) {
-                    await UpdateDocument(newcomer.snap.ref, { matchConfirmed: true })
+                    await UpdateDocument(newcomer.snap.ref, { matchConfirmed: true, matchConfirmedDate : createTimestamp() })
                 }
                 if (local.data.localOrNewcomer === Roles.local) {
-                    await UpdateDocument(local.snap.ref, { matchConfirmed: true })
+                    await UpdateDocument(local.snap.ref, { matchConfirmed: true, matchConfirmedDate : createTimestamp() })
                 }
                 await sendFcmNotifications(match.newcomer === match.requester ? match.newcomer : match.local, "You have a tandem match!", "Your tandem request was confirmed", {
                     matchId: match.newcomer === match.requester ? match.local : match.newcomer
